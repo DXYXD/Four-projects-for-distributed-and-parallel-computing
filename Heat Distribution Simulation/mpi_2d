@@ -2,6 +2,7 @@
 '''
 
 mpiexec -n 4 python mpiCHD2D_display.py
+2 dimension blocks
 
 '''
 
