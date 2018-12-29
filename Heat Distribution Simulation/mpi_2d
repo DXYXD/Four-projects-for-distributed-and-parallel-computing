@@ -1,0 +1,225 @@
+# -*- coding: utf-8 -*-
+'''
+
+mpiexec -n 4 python mpiCHD2D_display.py
+
+'''
+
+from mpi4py import MPI
+import numpy as np 
+import math
+import Const
+from time import time
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
+# MPI Initialization
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+# plt.ion() allows continuous plotting
+if rank == 0:
+    plt.ion()
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.set_zlim(-25, 100)
+    ax.set_xlim(0,10)
+    ax.set_ylim(0,10)
+
+# Define Constants
+Const.ROWS = 12
+Const.COLS = 12
+Const.STEPS = 500
+Const.SIDEBLOCK = int(math.sqrt(size))
+Const.SIZE = Const.SIDEBLOCK**2
+Const.SUBCOLS = Const.COLS // Const.SIDEBLOCK
+Const.SUBREMC = Const.COLS % Const.SIDEBLOCK
+Const.SUBROWS = Const.ROWS // Const.SIDEBLOCK
+Const.SUBREMR = Const.ROWS % Const.SIDEBLOCK
+Const.TEMPW = 20
+Const.TEMPF = 100
+
+# Initialize heat Mesh/Array for computing
+if (rank + 1) % Const.SIDEBLOCK == 0:
+    mysizec = Const.SUBCOLS + Const.SUBREMC + 2
+else:
+    mysizec = Const.SUBCOLS + 2
+
+if rank // Const.SIDEBLOCK  + 1 == Const.SIDEBLOCK:
+    mysizer = Const.SUBROWS + Const.SUBREMR + 2
+else:
+    mysizer = Const.SUBROWS + 2
+        
+c = np.zeros([Const.ROWS, Const.COLS], dtype = 'f')
+tA = np.zeros([mysizer, mysizec], dtype = 'f')
+cB = np.zeros([mysizer, mysizec], dtype = 'f')
+bufc = np.zeros(mysizer - 2, dtype = 'f')
+bufr = np.zeros(mysizec - 2, dtype = 'f')
+
+# Temperature Simulation
+# Wall
+if rank % Const.SIDEBLOCK == 0:
+    for i in range(mysizer - 2):
+        tA[i+1][1] = Const.TEMPW
+if (rank + 1) % Const.SIDEBLOCK == 0:
+    for i in range(mysizer - 2):
+        tA[i+1][mysizec - 2] = Const.TEMPW
+
+if rank // Const.SIDEBLOCK == 0:
+    for i in range(1, mysizec - 1):
+        tA[1][i] = Const.TEMPW
+if rank // Const.SIDEBLOCK + 1 == Const.SIDEBLOCK:
+    for i in range(1, mysizec - 1):
+        tA[mysizer - 2][i] = Const.TEMPW
+
+# Fire
+xv = int(Const.COLS / 2)
+yv = int(Const.ROWS / 2)
+by = yv // Const.SUBROWS + 1 # the by-th block counted by column
+bx = xv // Const.SUBCOLS + 1 # the bx-th block counted by row
+if rank == (by - 1) * Const.SIDEBLOCK + bx - 1:
+    xs = xv - (bx-1)*Const.SUBCOLS
+    ys = yv - (by-1)*Const.SUBROWS
+    if xs == 0:
+        xs += 1
+    if ys == 0:
+        ys += 1
+    tA[xs][ys] = Const.TEMPF
+    tA[xs][ys+1] = Const.TEMPF
+
+# Jacobi iteration
+startime = time()
+for count in range(Const.STEPS):
+    if rank < Const.SIZE:
+        # send data to the right process
+        if (rank + 1) % Const.SIDEBLOCK != 0:
+            for i in range(mysizer - 2):
+                bufc[i] = tA[i+1][mysizec - 2]
+            comm.Send(bufc, dest = rank + 1, tag = 1)
+        # receive data from the left process
+        if rank % Const.SIDEBLOCK != 0:
+            comm.Recv(bufc, source = rank - 1, tag = 1)
+            for i in range(mysizer - 2):
+                tA[i+1][0] = bufc[i]
+        # send data to the left process
+        if rank % Const.SIDEBLOCK != 0:
+            for i in range(mysizer - 2):
+                bufc[i] = tA[i+1][1]
+            comm.Send(bufc, dest = rank - 1, tag = 2)
+        # receive data from the right process
+        if (rank + 1) % Const.SIDEBLOCK != 0:
+            comm.Recv(bufc, source = rank + 1, tag = 2)
+            for i in range(mysizer - 2):
+                tA[i+1][mysizec - 1] = bufc[i]
+        # send data to the lower process
+        if rank // Const.SIDEBLOCK + 1 != Const.SIDEBLOCK:
+            for i in range(mysizec - 2):
+                bufr[i] = tA[mysizer - 2][i+1]
+            comm.Send(bufr, dest = rank + Const.SIDEBLOCK, tag = 3)    
+        # receive data from the upper process
+        if rank // Const.SIDEBLOCK != 0:
+            comm.Recv(bufr, source = rank - Const.SIDEBLOCK, tag = 3)
+            for i in range(mysizec - 2):
+                tA[0][i+1] = bufr[i]
+        # send data to the upper process
+        if rank // Const.SIDEBLOCK != 0:
+            for i in range(mysizec - 2):
+                bufr[i] = tA[1][i+1]
+            comm.Send(bufr, dest = rank - Const.SIDEBLOCK, tag = 4)
+        # receive data from the lower process
+        if rank // Const.SIDEBLOCK + 1 != Const.SIDEBLOCK:
+            comm.Recv(bufr, source = rank + Const.SIDEBLOCK, tag = 4)
+            for i in range(mysizec - 2):
+                tA[mysizer - 1][i+1] = bufr[i] 
+
+        # Jacobi computing
+        begincol = 1 # index
+        endcol = mysizec - 2 # index
+        beginrow = 1 # index
+        endrow = mysizer - 2 # index
+        if rank % Const.SIDEBLOCK == 0:
+            begincol = 2
+        if (rank + 1) % Const.SIDEBLOCK == 0:
+            endcol = mysizec - 3
+        if rank // Const.SIDEBLOCK == 0:
+            beginrow = 2
+        if rank // Const.SIDEBLOCK + 1 == Const.SIDEBLOCK:
+            endrow = mysizer - 3
+            
+        for j in range(begincol, endcol + 1):
+            for i in range(beginrow, endrow + 1):
+                cB[i][j] = 0.25 * (tA[i-1][j] + tA[i+1][j] + tA[i][j-1] + tA[i][j+1])
+        
+        for j in range(begincol, endcol + 1):
+            for i in range(beginrow, endrow + 1):
+                if tA[i][j] != Const.TEMPF:
+                    tA[i][j] = cB[i][j]
+
+    # Gather data
+    comm.Barrier()
+    endtime = time()
+    pureData = np.zeros([mysizec - 2, mysizer - 2], dtype = 'f')
+    startcol = 1
+    lastcol = mysizec - 2
+    startrow = 1
+    lastrow = mysizer - 2
+    if rank < Const.SIZE:
+        for i in range(startrow, lastrow + 1):
+            for j in range(startcol, lastcol + 1):
+                pureData[i-1][j-1] = tA[i][j]
+
+    if rank == 0:
+        buf = []
+        for rk in range(Const.SIZE):
+            if (rk + 1) % Const.SIDEBLOCK != 0 and rk // Const.SIDEBLOCK + 1 != Const.SIDEBLOCK:
+                t = np.zeros([Const.SUBROWS, Const.SUBCOLS],  dtype = 'f')
+            elif (rk + 1) % Const.SIDEBLOCK != 0 and rk // Const.SIDEBLOCK + 1 == Const.SIDEBLOCK:
+                t = np.zeros([Const.SUBROWS + Const.SUBREMR, Const.SUBCOLS],  dtype = 'f')
+            elif (rk + 1) % (Const.SIDEBLOCK * 2) == 0 and rk // Const.SIDEBLOCK + 1 != Const.SIDEBLOCK:
+                t = np.zeros([Const.SUBROWS, Const.SUBCOLS + Const.SUBREMC],  dtype = 'f')
+            else:
+                t = np.zeros([Const.SUBROWS + Const.SUBREMR, Const.SUBCOLS + Const.SUBREMC],  dtype = 'f')
+            buf.append(t)
+        buf[0] = pureData
+        
+    # Send final data to rank o
+    if rank > 0 and rank < Const.SIZE:
+        comm.Send(pureData, dest = 0, tag = rank)
+    if rank == 0:
+        for i in range(1, Const.SIZE):
+            comm.Recv(buf[i], source = i, tag = i)
+        # Assign the final result to array c
+        for buff in range(Const.SIZE):
+            if (buff + 1) % Const.SIDEBLOCK != 0 and buff // Const.SIDEBLOCK + 1 != Const.SIDEBLOCK: 
+                for i in range(Const.SUBROWS):
+                    for j in range(Const.SUBCOLS):
+                        c[(buff // Const.SIDEBLOCK)*Const.SUBROWS + i][(buff % Const.SIDEBLOCK)*Const.SUBCOLS + j] = buf[buff][i][j]
+            elif (buff + 1) % Const.SIDEBLOCK != 0 and buff // Const.SIDEBLOCK + 1 == Const.SIDEBLOCK:
+                for i in range(Const.SUBROWS + Const.SUBREMR):
+                    for j in range(Const.SUBCOLS):
+                        c[(buff // Const.SIDEBLOCK)*Const.SUBROWS + i][(buff % Const.SIDEBLOCK)*Const.SUBCOLS + j] = buf[buff][i][j]
+            elif (buff + 1) % Const.SIDEBLOCK == 0 and buff // Const.SIDEBLOCK + 1 != Const.SIDEBLOCK:
+                for i in range(Const.SUBROWS):
+                    for j in range(Const.SUBCOLS + Const.SUBREMC):
+                        c[(buff // Const.SIDEBLOCK)*Const.SUBROWS + i][(buff % Const.SIDEBLOCK)*Const.SUBCOLS + j] = buf[buff][i][j]
+            else:
+                for i in range(Const.SUBROWS + Const.SUBREMR):
+                    for j in range(Const.SUBCOLS + Const.SUBREMC):
+                        c[(buff // Const.SIDEBLOCK)*Const.SUBROWS + i][(buff % Const.SIDEBLOCK)*Const.SUBCOLS + j] = buf[buff][i][j]
+# Finishe iteration
+
+        # Display
+    if rank == 0:
+        # Two arrays with the mid points of each partition
+        x = np.linspace(0, 10, Const.ROWS)
+        y = np.linspace(0, 10, Const.COLS)
+        # Declare a second array, that is the 2D representation of the
+        # ones above.
+        X,Y = np.meshgrid(x,y)
+        Z = np.transpose(c)
+        ax.plot_surface(X,Y,Z, cmap=plt.get_cmap('rainbow'),linewidth=0, antialiased = False)      
+        cf = ax.contourf(X,Y,Z, 16, zdir='z',offset=-25, alpha = 0.6)
+        plt.show()       
+        plt.pause(0.01)
