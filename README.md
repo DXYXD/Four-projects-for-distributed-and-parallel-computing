@@ -24,7 +24,20 @@ Repeat 1-4 until the numbers are sorted.
 
 - Description
 The term Mandelbrot set is used to refer both to a general class of fractal sets and to a particular instance of such a set. In general, a Mandelbrot set marks the set of points in the complex plane such that the corresponding connected and not computable.\par
-The mandelbrot set is the set obtained from the quadratic recurrence equation $$z_{n+1} = z_n^2+C$$ with $z_0=C$, where points $C$ in the complex plane for which the orbit of $z_n$ does not tend to infinity are in the set. Setting $z_0$ equal to any in the set that is not a periodic point give the same result. The Mandelbrot set is connected. A plot of the Mandelbrot set is shown below in which values of $C$ in the complex plane are colored according to the number of steps required to reach $r_max=2$. The kidney bean-shaped portion of the Mandelbrot set turn out to be bordered by a cardioid with equations. $$4x=2\cos t-\cos(2t)$$ $$4y=2\sin t-\sin(2t)$$ This specific Mandelbrot set was implemented in this homework by using parallel methods MPI and Pthread.
+The mandelbrot set is the set obtained from the quadratic recurrence equation 
+<a href="https://www.codecogs.com/eqnedit.php?latex=$$z_{n&plus;1}&space;=&space;z_n^2&plus;C$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$z_{n&plus;1}&space;=&space;z_n^2&plus;C$$" title="$$z_{n+1} = z_n^2+C$$" /></a>
+with 
+<a href="https://www.codecogs.com/eqnedit.php?latex=$z_0=C$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$z_0=C$" title="$z_0=C$" /></a>
+, where points C in the complex plane for which the orbit of 
+<a href="https://www.codecogs.com/eqnedit.php?latex=$z_n$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$z_n$" title="$z_n$" /></a>
+does not tend to infinity are in the set. Setting 
+<a href="https://www.codecogs.com/eqnedit.php?latex=$z_0$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$z_0$" title="$z_0$" /></a> 
+equal to any in the set that is not a periodic point give the same result. The Mandelbrot set is connected. A plot of the Mandelbrot set is shown below in which values of C in the complex plane are colored according to the number of steps required to reach 
+<a href="https://www.codecogs.com/eqnedit.php?latex=$r_max=2$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$r_max=2$" title="$r_max=2$" /></a>
+. The kidney bean-shaped portion of the Mandelbrot set turn out to be bordered by a cardioid with equations. 
+<a href="https://www.codecogs.com/eqnedit.php?latex=$$4x=2\cos&space;t-\cos(2t)$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$4x=2\cos&space;t-\cos(2t)$$" title="$$4x=2\cos t-\cos(2t)$$" /></a>
+<a href="https://www.codecogs.com/eqnedit.php?latex=$$4y=2\sin&space;t-\sin(2t)$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$4y=2\sin&space;t-\sin(2t)$$" title="$$4y=2\sin t-\sin(2t)$$" /></a>
+This specific Mandelbrot set was implemented in this homework by using parallel methods MPI and Pthread.
 
 ## Project 3
 - Environment
