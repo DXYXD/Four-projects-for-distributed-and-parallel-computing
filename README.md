@@ -23,6 +23,7 @@ Repeat 1-4 until the numbers are sorted.
 4. Library: X11/Xlib(GUI), pthread.h(thread), mpi.h(process)
 
 - Description
+
 The term Mandelbrot set is used to refer both to a general class of fractal sets and to a particular instance of such a set. In general, a Mandelbrot set marks the set of points in the complex plane such that the corresponding connected and not computable.\par
 The mandelbrot set is the set obtained from the quadratic recurrence equation 
 <a href="https://www.codecogs.com/eqnedit.php?latex=$$z_{n&plus;1}&space;=&space;z_n^2&plus;C$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$z_{n&plus;1}&space;=&space;z_n^2&plus;C$$" title="$$z_{n+1} = z_n^2+C$$" /></a>
@@ -48,14 +49,15 @@ This specific Mandelbrot set was implemented in this homework by using parallel 
 5. Library: mpl\_toolkits/matplotlib(GUI), mpi4py(Process), threading(multi-threads)
 
 - Description
+
 Dynamics is interested in more than a pure description of motion. Dynamics is a study of how a system of bodies evolves over time under the presence of force. Bodies are represented by mass particles (or mass points) that are under the influence of force. The N-body simulation is used to determine the evolution of N-body system.
 
 The N-body problem is defined as follows. We have initial conditions i.e. initial positions and initial velocities of all bodies in the system. Interactions (forces) between all bodies in the system have to be evaluated to receive new positions and new velocities. This evaluation is performed repeatedly so that we are getting information about the time evolution of the system. 
 
 Mathematically is the N-body problem formulated by the system of ordinary differential equations (ODE) coming from Newton’s laws of motion expressed as
-$$\frac{d \vec{r_i} }{dt} = \vec{v_i} \eqno(1.1)$$
-$$m_i \cdot \frac{d \vec{v_i}}{dt}=\vec{F_i} \eqno(1.2)$$
-where $m_i, \vec{r_i}$ and $\vec{v_i}$ are the mass, position and velocity of the $i-th$ partical, respectively, and $i=1,2,3,...,N$. The force $\vec{F_i}$ is usually the sum of external forces. When dealing with systems of stars or stellar systems, we will use Newton's gravitational force.
+<img src="https://latex.codecogs.com/gif.latex?$$\frac{d&space;\vec{r_i}&space;}{dt}&space;=&space;\vec{v_i}&space;\eqno(1.1)$$" title="$$\frac{d \vec{r_i} }{dt} = \vec{v_i} \eqno(1.1)$$" />
+<img src="https://latex.codecogs.com/gif.latex?$$m_i&space;\cdot&space;\frac{d&space;\vec{v_i}}{dt}=\vec{F_i}&space;\eqno(1.2)$$" title="$$m_i \cdot \frac{d \vec{v_i}}{dt}=\vec{F_i} \eqno(1.2)$$" />
+where <img src="https://latex.codecogs.com/gif.latex?$m_i,&space;\vec{r_i}$" title="$m_i, \vec{r_i}$" /> and <img src="https://latex.codecogs.com/gif.latex?$\vec{v_i}$" title="$\vec{v_i}$" /> are the mass, position and velocity of the $i-th$ partical, respectively, and i=1,2,3,...,N. The force <img src="https://latex.codecogs.com/gif.latex?$\vec{F_i}$" title="$\vec{F_i}$" /> is usually the sum of external forces. When dealing with systems of stars or stellar systems, we will use Newton's gravitational force.
 
 ## Project 4
 - Environment
