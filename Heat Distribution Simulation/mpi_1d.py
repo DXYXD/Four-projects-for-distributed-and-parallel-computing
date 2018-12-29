@@ -1,6 +1,7 @@
 '''
 
 mpiexec -n 4 python mpiCHD1D_display.py
+1 dimension blocks
 
 '''
 
