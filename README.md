@@ -54,10 +54,6 @@ Dynamics is interested in more than a pure description of motion. Dynamics is a 
 
 The N-body problem is defined as follows. We have initial conditions i.e. initial positions and initial velocities of all bodies in the system. Interactions (forces) between all bodies in the system have to be evaluated to receive new positions and new velocities. This evaluation is performed repeatedly so that we are getting information about the time evolution of the system. 
 
-Mathematically is the N-body problem formulated by the system of ordinary differential equations (ODE) coming from Newton’s laws of motion expressed as
-<img src="https://latex.codecogs.com/gif.latex?$$\frac{d&space;\vec{r_i}&space;}{dt}&space;=&space;\vec{v_i}&space;\eqno(1.1)$$" title="$$\frac{d \vec{r_i} }{dt} = \vec{v_i} \eqno(1.1)$$" />
-<img src="https://latex.codecogs.com/gif.latex?$$m_i&space;\cdot&space;\frac{d&space;\vec{v_i}}{dt}=\vec{F_i}&space;\eqno(1.2)$$" title="$$m_i \cdot \frac{d \vec{v_i}}{dt}=\vec{F_i} \eqno(1.2)$$" />
-where <img src="https://latex.codecogs.com/gif.latex?$m_i,&space;\vec{r_i}$" title="$m_i, \vec{r_i}$" /> and <img src="https://latex.codecogs.com/gif.latex?$\vec{v_i}$" title="$\vec{v_i}$" /> are the mass, position and velocity of the $i-th$ partical, respectively, and i=1,2,3,...,N. The force <img src="https://latex.codecogs.com/gif.latex?$\vec{F_i}$" title="$\vec{F_i}$" /> is usually the sum of external forces. When dealing with systems of stars or stellar systems, we will use Newton's gravitational force.
 
 ## Project 4
 - Environment
@@ -68,4 +64,4 @@ where <img src="https://latex.codecogs.com/gif.latex?$m_i,&space;\vec{r_i}$" tit
 5. Library: mpl\_toolkits/matplotlib(GUI), mpi4py(Process), threading(multi-threads)
 
 - Description
-The temperature of the wall is 20$^\circ$C, and the temperature of the fireplace is 100$^\circ$C. In this program, I use Jacobi iteration to compute the temperature inside the room and plot(in color) the temperature contour at 5$^\circ$C intervals using matplotlib. 
+The temperature of the wall is 20<img src="https://latex.codecogs.com/gif.latex?$^\circ$C" title="$^\circ$C" />, and the temperature of the fireplace is 100<img src="https://latex.codecogs.com/gif.latex?$^\circ$C" title="$^\circ$C" />. In this program, I use Jacobi iteration to compute the temperature inside the room and plot(in color) the temperature contour at 5<img src="https://latex.codecogs.com/gif.latex?$^\circ$C" title="$^\circ$C" /> intervals using matplotlib. 
